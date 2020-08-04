@@ -23,7 +23,7 @@ public class DataMessage {
 
     private Metadata metadata = null;
 
-    private String location = null;
+    private Location location = null;
 
     private String[] tags = null;
 
@@ -51,11 +51,11 @@ public class DataMessage {
         this.model = model;
     }
 
-    public String getLocation() {
+    public Location getLocation() {
         return location;
     }
 
-    public void setLocation(String location) {
+    public void setLocation(Location location) {
         this.location = location;
     }
 
