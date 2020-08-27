@@ -10,5 +10,5 @@ package com.orange.lo.sample.externalconnector;
 import com.orange.lo.sample.lo.model.CommandRequest;
 
 public interface MessageCallback {
-    void onMessage(String nodeId, CommandRequest commandRequest);
+    Object onMessage(CommandRequest commandRequest);
 }

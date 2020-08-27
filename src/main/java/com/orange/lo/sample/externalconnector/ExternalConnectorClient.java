@@ -11,16 +11,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orange.lo.sample.exceptions.LoMqttException;
 import com.orange.lo.sample.exceptions.ParseException;
-import com.orange.lo.sample.lo.model.CommandRequest;
-import com.orange.lo.sample.lo.model.CommandResponse;
-import com.orange.lo.sample.lo.model.DataMessage;
-import com.orange.lo.sample.lo.model.NodeStatus;
+import com.orange.lo.sample.lo.model.*;
 import org.eclipse.paho.client.mqttv3.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.UUID;
 
 public class ExternalConnectorClient {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExternalConnectorClient.class);
 
     private final IMqttClient mqttClient;
     private final ObjectMapper objectMapper;
@@ -40,6 +41,7 @@ public class ExternalConnectorClient {
         if (!mqttClient.isConnected()) {
             MqttConnectOptions opts = getMqttConnectionOptions();
             mqttClient.connect(opts);
+            LOGGER.info("Successfully connected to Live Objects.");
         }
         if (parameters.getMessageCallback() != null) {
             receiveCommands();
@@ -48,23 +50,26 @@ public class ExternalConnectorClient {
 
     public void disconnect() throws MqttException {
         mqttClient.disconnect();
+        LOGGER.info("Successfully disconnected.");
     }
 
     public void sendStatus(String nodeId, NodeStatus nodeStatus) {
         MqttMessage msg = prepareMqttMessage(nodeStatus);
         String topic = String.format(parameters.getStatusTopicTemplate(), nodeId);
         publish(topic, msg);
+        LOGGER.debug("Status for nodeId {} has been sent successfully.", nodeId);
     }
 
     public void sendMessage(String nodeId, DataMessage dataMessage) {
         MqttMessage msg = prepareMqttMessage(dataMessage);
         String topic = String.format(parameters.getDataTopicTemplate(), nodeId);
         publish(topic, msg);
+        LOGGER.debug("Message for nodeId {} has been sent successfully.", nodeId);
     }
 
-    private MqttMessage prepareMqttMessage(Object dataMessage) {
+    private MqttMessage prepareMqttMessage(Object message) {
         try {
-            String payload = objectMapper.writeValueAsString(dataMessage);
+            String payload = objectMapper.writeValueAsString(message);
             MqttMessage msg = new MqttMessage();
             msg.setQos(parameters.getMessageQos());
             msg.setPayload(payload.getBytes());
@@ -82,7 +87,7 @@ public class ExternalConnectorClient {
         }
     }
 
-    public void sendCommandResponse(CommandResponse commandResponse) {
+    private void sendCommandResponse(CommandResponse commandResponse) {
         MqttMessage msg = prepareMqttMessage(commandResponse);
         publish(parameters.getCommandResponseTopic(), msg);
     }
@@ -90,6 +95,7 @@ public class ExternalConnectorClient {
     private void receiveCommands() {
         try {
             mqttClient.subscribe(parameters.getCommandRequestTopic(), parameters.getMessageQos(), this::messageArrived);
+            LOGGER.info("Command request topic was subscribed successfully.");
         } catch (MqttException e) {
             throw new LoMqttException(e);
         }
@@ -97,8 +103,22 @@ public class ExternalConnectorClient {
 
     private void messageArrived(String topic, MqttMessage mqttMessage) throws IOException {
         CommandRequest commandRequest = objectMapper.readValue(mqttMessage.getPayload(), CommandRequest.class);
+        LOGGER.debug("Command arrived. Topic: {}, Id: {}, nodeId: {}.", topic, commandRequest.getId(), commandRequest.getNodeId());
         MessageCallback messageCallback = parameters.getMessageCallback();
-        messageCallback.onMessage(commandRequest.getNodeId(), commandRequest);
+        Object response = messageCallback.onMessage(commandRequest);
+        if (isAckModeNone(commandRequest)) {
+            LOGGER.debug("AckMode is set to None - no need to send a response.");
+        } else {
+            CommandResponse commandResponse = new CommandResponse(commandRequest.getId(), commandRequest.getNodeId());
+            commandResponse.setResponse(response);
+            sendCommandResponse(commandResponse);
+            LOGGER.debug("Response was sent successfully. Command Id: {}, nodeId: {}.", commandRequest.getId(), commandRequest.getNodeId());
+        }
+    }
+
+    private boolean isAckModeNone(CommandRequest commandRequest) {
+        AcknowledgementMode ackMode = commandRequest.getAckMode();
+        return AcknowledgementMode.NONE.equals(ackMode);
     }
 
     private MqttConnectOptions getMqttConnectionOptions() {

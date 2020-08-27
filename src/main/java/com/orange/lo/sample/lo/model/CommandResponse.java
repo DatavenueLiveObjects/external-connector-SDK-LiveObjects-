@@ -13,10 +13,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class CommandResponse {
 
     private String id;
-
     private String nodeId;
-
-    private Object response = null;
+    private Object response;
 
     public CommandResponse(String id, String nodeId) {
         this.id = id;

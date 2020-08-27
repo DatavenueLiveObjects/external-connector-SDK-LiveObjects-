@@ -19,8 +19,8 @@ public class ExternalConnectorParametersException extends RuntimeException {
         super(message);
     }
 
-    public ExternalConnectorParametersException(Throwable t) {
-        super(t);
+    public ExternalConnectorParametersException(Throwable throwable) {
+        super(throwable);
     }
 
 }

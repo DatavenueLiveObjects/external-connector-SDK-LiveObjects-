@@ -10,22 +10,18 @@ package com.orange.lo.sample.lo.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
+import java.util.List;
+
 @JsonInclude(Include.NON_EMPTY)
 public class DataMessage {
 
-    private String streamId = null;
-
-    private String timestamp = null;
-
-    private String model = null;
-
-    private Object value = null;
-
-    private Metadata metadata = null;
-
-    private Location location = null;
-
-    private String[] tags = null;
+    private String streamId;
+    private String timestamp;
+    private String model;
+    private Object value;
+    private Metadata metadata;
+    private Location location;
+    private List<String> tags;
 
     public String getStreamId() {
         return streamId;
@@ -59,11 +55,11 @@ public class DataMessage {
         this.location = location;
     }
 
-    public String[] getTags() {
+    public List<String> getTags() {
         return tags;
     }
 
-    public void setTags(String[] tags) {
+    public void setTags(List<String> tags) {
         this.tags = tags;
     }
 

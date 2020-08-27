@@ -57,9 +57,9 @@ class ExternalConnectorParametersTest {
 
     @Test
     void shouldThrowExternalConnectorParametersExceptionWhenApiKeyIsNotSet() {
-        Assertions.assertThrows(ExternalConnectorParametersException.class, () -> ExternalConnectorParameters.builder()
-                .hostname(HOSTNAME)
-                .build());
+        ExternalConnectorParameters.ExternalConnectorParametersBuilder parametersBuilder = ExternalConnectorParameters.builder()
+                .hostname(HOSTNAME);
+        Assertions.assertThrows(ExternalConnectorParametersException.class, parametersBuilder::build);
     }
 
     @Test
@@ -84,9 +84,9 @@ class ExternalConnectorParametersTest {
 
     @Test
     void shouldThrowExternalConnectorParametersExceptionWhenHostnameIsNotSet() {
-        Assertions.assertThrows(ExternalConnectorParametersException.class, () -> ExternalConnectorParameters.builder()
-                .apiKey(API_KEY)
-                .build());
+        ExternalConnectorParameters.ExternalConnectorParametersBuilder parametersBuilder = ExternalConnectorParameters.builder()
+                .apiKey(API_KEY);
+        Assertions.assertThrows(ExternalConnectorParametersException.class, parametersBuilder::build);
     }
 
     @Test
@@ -94,8 +94,7 @@ class ExternalConnectorParametersTest {
         ExternalConnectorParameters externalConnectorParameters = ExternalConnectorParameters.builder()
                 .hostname(HOSTNAME)
                 .apiKey(API_KEY)
-                .messageCallback((nodeId, commandRequest) -> {
-                })
+                .messageCallback((commandRequest) -> null)
                 .build();
 
         assertNotNull(externalConnectorParameters.getMessageCallback());

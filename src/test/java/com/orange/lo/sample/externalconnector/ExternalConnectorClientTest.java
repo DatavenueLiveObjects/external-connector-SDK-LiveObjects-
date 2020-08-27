@@ -60,8 +60,7 @@ class ExternalConnectorClientTest {
         externalConnectorParameters = ExternalConnectorParameters.builder()
                 .hostname(ExternalConnectorParametersTest.HOSTNAME)
                 .apiKey(ExternalConnectorParametersTest.API_KEY)
-                .messageCallback((nodeId, commandRequest) -> {
-                })
+                .messageCallback((commandRequest) -> null)
                 .build();
 
         externalConnectorClient = new ExternalConnectorClient(externalConnectorParameters, mqttClient);
@@ -76,8 +75,7 @@ class ExternalConnectorClientTest {
         externalConnectorParameters = ExternalConnectorParameters.builder()
                 .hostname(ExternalConnectorParametersTest.HOSTNAME)
                 .apiKey(ExternalConnectorParametersTest.API_KEY)
-                .messageCallback((nodeId, commandRequest) -> {
-                })
+                .messageCallback((commandRequest) -> null)
                 .commandRequestTopic(commandRequestTopic)
                 .build();
 
@@ -147,40 +145,6 @@ class ExternalConnectorClientTest {
         externalConnectorClient.sendMessage(EX_CONNECTOR_NODE_ID, dataMessage);
 
         verify(mqttClient, times(1)).publish(eq(expectedTopic), hasSamePayload(expectedMessage));
-    }
-
-    @Test
-    void shouldSendCommandResponseToDefaultCommandResponseTopicWhenCommandResponseTopicWasNotChangedInParameters() throws MqttException {
-        CommandResponse commandResponse = getCommandResponse();
-        MqttMessage expectedMessage = toMqttMessage(commandResponse);
-
-        externalConnectorClient.sendCommandResponse(commandResponse);
-
-        verify(mqttClient, times(1)).publish(eq(DEFAULT_COMMAND_RESPONSE_TOPIC), hasSamePayload(expectedMessage));
-    }
-
-    @Test
-    void shouldSendCommandResponseToChangedCommandResponseTopicWhenCommandResponseTopicWasChangedInParameters() throws MqttException {
-        String commandResponseTopic = "new/command/response/topic";
-        CommandResponse commandResponse = getCommandResponse();
-        MqttMessage expectedMessage = toMqttMessage(commandResponse);
-
-        externalConnectorParameters = ExternalConnectorParameters.builder()
-                .hostname(ExternalConnectorParametersTest.HOSTNAME)
-                .apiKey(ExternalConnectorParametersTest.API_KEY)
-                .commandResponseTopic(commandResponseTopic)
-                .build();
-
-        externalConnectorClient = new ExternalConnectorClient(externalConnectorParameters, mqttClient);
-        externalConnectorClient.connect();
-        externalConnectorClient.sendCommandResponse(commandResponse);
-
-        verify(mqttClient, times(1)).publish(eq(commandResponseTopic), hasSamePayload(expectedMessage));
-    }
-
-    private CommandResponse getCommandResponse() {
-        String commandId = "command-id";
-        return new CommandResponse(commandId, EX_CONNECTOR_NODE_ID);
     }
 
     private NodeStatus getNodeStatus() {

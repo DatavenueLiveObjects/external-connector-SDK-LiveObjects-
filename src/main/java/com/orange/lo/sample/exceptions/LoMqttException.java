@@ -19,8 +19,8 @@ public class LoMqttException extends RuntimeException {
         super(message);
     }
 
-    public LoMqttException(Throwable t) {
-        super(t);
+    public LoMqttException(Throwable throwable) {
+        super(throwable);
     }
 
 }

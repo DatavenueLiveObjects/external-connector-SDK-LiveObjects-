@@ -10,11 +10,8 @@ package com.orange.lo.sample.lo.model;
 public class CommandRequest {
 
     private String id;
-
     private String nodeId;
-
-    private String ackMode;
-
+    private AcknowledgementMode ackMode;
     private CommandRequestValue value;
 
     public String getId() {
@@ -33,11 +30,11 @@ public class CommandRequest {
         this.nodeId = nodeId;
     }
 
-    public String getAckMode() {
+    public AcknowledgementMode getAckMode() {
         return ackMode;
     }
 
-    public void setAckMode(String ackMode) {
+    public void setAckMode(AcknowledgementMode ackMode) {
         this.ackMode = ackMode;
     }
 

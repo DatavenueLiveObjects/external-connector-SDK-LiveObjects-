@@ -95,7 +95,7 @@ public final class ExternalConnectorParameters {
         private String statusTopicTemplate = DEFAULT_STATUS_TOPIC_TEMPLATE;
         private String commandResponseTopic = DEFAULT_COMMAND_RESPONSE_TOPIC;
         private String commandRequestTopic = DEFAULT_COMMAND_REQUEST_TOPIC;
-        private boolean automaticReconnect = false;
+        private boolean automaticReconnect;
         private MessageCallback messageCallback;
 
         public ExternalConnectorParametersBuilder messageQos(int messageQos) {
